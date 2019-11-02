@@ -368,7 +368,8 @@ class Pokemon():
         self.damaging_moves = damaging_moves
 
 
-@bot.command(name = 'pokemon_inventory', aliases = ('pokemon_inv', 'inventory'))
+@bot.command(name = 'pokemon_inventory', aliases = ['pokemon_inv', 'inventory'],
+             help = 'displays amount of pokeballs')
 async def pokemon_inventory(ctx):
     user_path = 'users/' + str(ctx.message.author.id)
     inventory_path = user_path + '/inventory'
@@ -387,7 +388,8 @@ async def pokemon_inventory(ctx):
     await ctx.send(str2)
 
 
-@bot.command(name = 'pokemon_list', aliases = ('list', 'list_pokemon', 'my_pokemon'))
+@bot.command(name = 'pokemon_list', aliases = ['list', 'list_pokemon', 'my_pokemon'],
+             help = 'lists your pokemon')
 async def pokemon_list(ctx):
     path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(path), await ctx.send(
@@ -409,7 +411,8 @@ async def pokemon_list(ctx):
     await ctx.send(embed = embed)
 
 
-@bot.command(name = 'pokemon_inspect', aliases = ('inspect', 'pokemon_check', 'check'))
+@bot.command(name = 'pokemon_inspect', aliases = ['inspect', 'pokemon_check', 'check'],
+             help = 'inspect a Pokemon with its [ID]')
 async def pokemon_inspect(ctx, poke_number: int):
     path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(path), await ctx.send(
@@ -448,7 +451,8 @@ async def pokemon_inspect(ctx, poke_number: int):
     await ctx.send(pokemon.sprite)
     await ctx.send(embed = embed)
 
-@bot.command(name = 'pokemon_release', aliases = (['release', 'Release']))
+@bot.command(name = 'pokemon_release', aliases = ['release', 'Release'],
+             help = 'release a Pokemon with its [ID]')
 async def pokemon_release(ctx, poke_number: int):
     path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(path), await ctx.send(
@@ -466,8 +470,9 @@ async def pokemon_release(ctx, poke_number: int):
         assert poke_number not in team.values(), await ctx.send('Cannot release a Pokemon in your team!')
 
     os.remove(pokemon_path)
+    await ctx.send('Pokemon released')
 
-@bot.command(name = 'team_list')
+@bot.command(name = 'team_list', help = 'lists out your Pokemon battling team')
 async def team_list(ctx):
     pokelist_path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(pokelist_path), await ctx.send(
@@ -502,7 +507,7 @@ def create_team(path):
     pickle.dump(dict, dbfile)
     dbfile.close()
 
-@bot.command(name = 'team_add', aliases = (['add', 'Add']))
+@bot.command(name = 'team_add', aliases = ['add', 'Add'], help = 'adds a Pokemon to your battle team with [ID]')
 async def team_add(ctx, poke_number: int):
     pokelist_path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(pokelist_path), await ctx.send(
@@ -547,7 +552,7 @@ async def team_add(ctx, poke_number: int):
 
     await ctx.send('Your team:', embed=embed)
 
-@bot.command(name = 'team_remove')
+@bot.command(name = 'team_remove', help = 'remove [slot number] Pokemon from your battling team')
 async def team_remove(ctx, team_number: int):
     pokelist_path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(pokelist_path), await ctx.send(
@@ -590,7 +595,8 @@ async def team_remove(ctx, team_number: int):
 
     await ctx.send('Your team:', embed=embed)
 
-@bot.command(name = 'team_replace')
+@bot.command(name = 'team_replace',
+             help = 'replace [slot number] Pokemon in your battling team with [ID] pokemon')
 async def team_replace(ctx, team_number: int, poke_number:int):
     pokelist_path = 'users/' + str(ctx.message.author.id) + '/pokemon'
     assert os.path.exists(pokelist_path), await ctx.send(
@@ -640,7 +646,8 @@ async def team_replace(ctx, team_number: int, poke_number:int):
     await ctx.send('Your team:', embed=embed)
 
 
-@bot.command(name = 'pokemon_drawballs', aliases = ('draw', 'drawballs', 'draw_balls', 'pokemon_draw'))
+@bot.command(name = 'pokemon_drawballs', aliases = ('draw', 'drawballs', 'draw_balls', 'pokemon_draw'),
+             help='get 10 random pokeballs per day (limit disabled for testing)')
 async def draw_balls(ctx):
     user_path = 'users/' + str(ctx.message.author.id)
     inventory_path = user_path + '/inventory'
@@ -697,7 +704,8 @@ async def draw_balls(ctx):
     await ctx.send(str2)
 
 
-@bot.command(name = 'Pokeball', aliases = ('catch', 'throw', 'ball', 'pokeball', 'pokemon_catch', 'pokemon_pokeball'))
+@bot.command(name = 'Pokeball', aliases = ['catch', 'throw', 'ball', 'pokeball', 'pokemon_catch', 'pokemon_pokeball'],
+             help = 'throw a [pokeball] to catch a Pokemon')
 async def pokeball(ctx, ball):
     #finds possible pokeballs
     balls = {'pokeball': poke, 'greatball': great, 'ultraball': ultra, 'masterball': master}
@@ -782,25 +790,25 @@ class Battle(commands.Cog):
     def remove(self, ctx):
         self.add_guild(ctx.guild.id)
 
-    @commands.command(name='challenge', aliases=(['Challenge']))
+    @commands.command(name='challenge', aliases=['Challenge'], help = 'initialize a battle challenge')
     async def challenge(self, ctx):
         if ctx.guild.id not in self.guild_dict.keys():
             self.add_guild(ctx.guild.id)
         await self.guild_dict[ctx.guild.id].guild_challenge(ctx)
 
-    @commands.command(name='accept', aliases=(['Accept']))
+    @commands.command(name='accept', aliases=['Accept'], help = 'accept a battle challenge')
     async def accept(self, ctx):
         await self.guild_dict[ctx.guild.id].guild_accept(ctx)
 
-    @commands.command(name='end', aliases=(['End', 'end_battle']))
+    @commands.command(name='end', aliases=['End', 'end_battle'], help = 'end a battle you are in')
     async def end(self, ctx):
         await self.guild_dict[ctx.guild.id].guild_end(ctx)
 
-    @commands.command(name='attack', aliases=(['Attack']))
+    @commands.command(name='attack', aliases=['Attack'], help = 'attack the defending Pokemon with [move number]')
     async def attack(self, ctx, move_number: int):
         await self.guild_dict[ctx.guild.id].guild_attack(ctx, move_number)
 
-    @commands.command(name='choose', aliases=(['Choose']))
+    @commands.command(name='choose', aliases=['Choose'], help = 'choose a new Pokemon to send out with [slot number]')
     async def choose(self, ctx, slot: int):
         await self.guild_dict[ctx.guild.id].guild_choose(ctx, slot)
 
@@ -879,13 +887,13 @@ class GuildBattle(Battle):
             species, level, id = pokemon.pokemon.species, pokemon.pokemon.level, pokemon.pokemon.id
             string = 'Slot ' + str(number + 1) + ': ' + species[0].upper() + species[1:] + ', level ' + str(level) + ' [ID: ' + str(id) + ']'
             embed.add_field(name=string, value='\u200b', inline=False)
+        embed.add_field(name='Choose a new Pokemon to send out using !choose [slot number]', value='\u200b', inline=False)
 
         await ctx.send(embed=embed)
 
     async def finish(self, ctx, winner):
         await ctx.send('The winner is: ' + str(winner))
         self.remove(ctx)
-
 
 
     async def guild_challenge(self, ctx):
