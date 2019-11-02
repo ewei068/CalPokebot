@@ -1,7 +1,8 @@
 # CalPokebot
 This is my first personal project so I'm just trying to learn what to do and how everything works
 
-This Discord bot is a multipurpose bot that also allows users to catch and battle Pokemon.
+This Discord bot is a multipurpose bot that also allows users to catch and battle Pokemon.<br>
+LINK TO ADD TO DISCORD: https://discordapp.com/api/oauth2/authorize?client_id=640100001829224449&permissions=8&scope=bot
 
 ***Commands***
 
