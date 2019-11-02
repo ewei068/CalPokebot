@@ -784,6 +784,8 @@ class Battle(commands.Cog):
 
     @commands.command(name='challenge', aliases=(['Challenge']))
     async def challenge(self, ctx):
+        if ctx.guild.id not in self.guild_dict.keys():
+            self.add_guild(ctx.guild.id)
         await self.guild_dict[ctx.guild.id].guild_challenge(ctx)
 
     @commands.command(name='accept', aliases=(['Accept']))
@@ -887,7 +889,7 @@ class GuildBattle(Battle):
 
 
     async def guild_challenge(self, ctx):
-        assert not self.check, await ctx.send('Battle currently happening')
+        assert not self.check, await ctx.send('Battle currently happening. If a challenge has been posed, accept it with !accept')
         team_path = 'users/' + str(ctx.message.author.id) + '/team'
         assert os.path.exists(team_path), await ctx.send(
             'You have no team! Add Pokemon to your team with !add')
