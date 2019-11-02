@@ -2,6 +2,7 @@
 This is my first personal project so I'm just trying to learn what to do and how everything works
 
 This Discord bot is a multipurpose bot that also allows users to catch and battle Pokemon.
+
 ***Commands***
 
 <b>General:</b><br>
