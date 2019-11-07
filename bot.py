@@ -17,11 +17,13 @@ import copy
 from pokeballs import *
 from typechart import *
 
+# gets pre-cached move data
 cache_path = 'move_cache'
 dbfile = open(cache_path, 'rb')
 move_cache = pickle.load(dbfile)
 dbfile.close()
 
+# gets bot token from .env file
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
@@ -34,7 +36,7 @@ async def on_ready():
     bot.add_cog(Battle(bot))
     battle_init = bot.get_cog('Battle')
     for guild in bot.guilds:
-        battle_init.add_guild(guild.id)
+        battle_init.add_guild(guild.id)  # creates a new battle instance for each server upon start
         print(
             f'{bot.user} is connected to the following guild:\n'
             f'{guild.name}(id: {guild.id})'
@@ -65,8 +67,8 @@ async def bitcoin(ctx):
 @bot.command(name='B',
                 description="SPAMS THE 🅱️ EMOJI",
                 brief="🅱️rief",
-                aliases=['B Emoji', '🅱️', '🅱️ Emoji'])
-async def eight_ball(ctx):
+                aliases=['B_Emoji', '🅱️', '🅱️_Emoji'])
+async def B(ctx):
     await ctx.send('🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️' +
                    '🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️' +
                    '🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️🅱️' +
@@ -75,10 +77,7 @@ async def eight_ball(ctx):
 
 @bot.command(name='roll_dice', help='Simulates rolling dice.')
 async def roll(ctx, number_of_dice: int = 1, number_of_sides: int = 6):
-    dice = [
-        str(random.choice(range(1, number_of_sides + 1)))
-        for _ in range(number_of_dice)
-    ]
+    dice = [str(random.choice(range(1, number_of_sides + 1))) for _ in range(number_of_dice)]
     await ctx.send(', '.join(dice))
 
 @bot.command(pass_context=True)
@@ -130,6 +129,11 @@ async def creeper(ctx):
               'Come', 'on', 'swing', 'your', 'sword', 'up', 'high', 'The', 'creeper', 's', 'tryna', 'steal', 'all',
               'our', 'stuff', 'again', 'Come', 'on', 'jab', 'your', 'sword', 'down', 'low', 'Woo']
 
+    # the commented out blocks are supposed to stream 'Revenge' by Captain Sparkles in the Discord voice channels but
+    # Youtube compatability was recently lowkey removed from Discord bots so I commented it out so the bot doesn't
+    # connect to voice channels everytime this command is called
+
+    '''
     voice_channel = ctx.author.voice
     if voice_channel != None:
         if voice_channel != None:
@@ -160,15 +164,18 @@ async def creeper(ctx):
                     os.rename(file, 'song.mp3')
 
             vc.play(discord.FFmpegPCMAudio("song.mp3"))
-
+    '''
+    
+    # sends the next lyric from 'lyrics' every 0.25 seconds
     for word in lyrics:
-        await ctx.send('@everyone ' + word)
+        await ctx.send(word)
         time.sleep(0.25)
 
+    '''
     server = ctx.message.guild.voice_client
     if server:
         await server.disconnect()
-
+    '''
 
 
 @bot.command(pass_context=True)
@@ -254,6 +261,7 @@ async def play(ctx, *content):
     else:
         await ctx.send('User is not in a channel.')
 
+#gets Reddit API keys from .env file
 reddit = praw.Reddit(client_id=os.getenv('REDDIT_CLIENT_ID'),
                      client_secret=os.getenv('REDDIT_CLIENT_SECRET'),
                      user_agent=os.getenv('REDDIT_USER_AGENT'))
@@ -261,9 +269,11 @@ reddit = praw.Reddit(client_id=os.getenv('REDDIT_CLIENT_ID'),
 @bot.command()
 async def okbuddy(ctx):
     memes_submissions = reddit.subreddit('okbuddyretard').hot()
-    post_to_pick = random.randint(1, 12)
+    post_to_pick = random.randint(1, 12)  # chooses a random post to pick
+
+    # finds specified non-stickied post
     for i in range(0, post_to_pick):
-        submission = next(x for x in memes_submissions if not x.stickied)
+        submission = next(x for x in memes_submissions if not x.stickied) # gets posts
 
     await ctx.send(submission.url)
 
@@ -271,7 +281,8 @@ async def okbuddy(ctx):
 @bot.command(name = 'Reddit', aliases=['reddit', 'reddit_posts'])
 async def reddit_posts(ctx, sub: str = 'all', number: int = 3):
     assert number < 11, await ctx.send('Choose less posts!')
-    submissions = reddit.subreddit(sub).hot()
+    submissions = reddit.subreddit(sub).hot()  # gets posts
+    # sends specified number of posts
     for i in range(0, number):
         submission = next(x for x in submissions if not x.stickied)
         await ctx.send(submission.url)
@@ -297,39 +308,39 @@ async def say(ctx, *speech):
 #POKEMON COMMANDS!
 
 class Pokemon():
-    iv_spread = [31, 31, 31, 31, 31, 31]
-    nature = None
+    iv_spread = [31, 31, 31, 31, 31, 31]  # default IVs were 100 for testing
+    nature = None  # may be implemented later
     type1 = None
     type2 = None
     damaging_moves = []
 
     def __init__(self, info, species, id, level: int = 75):
         self.id = id
-        #gets pokemon info from api
-        self.api_info = info
+        self.api_info = info  # gets pokemon info from api
 
-        #sprite, species, level
+        # sprite, species, level
         self.sprite = self.api_info["sprites"]["front_default"]
         self.species = species
         self.level = level
 
-        #sets typing
+        # sets typing
         if len(self.api_info["types"]) == 1:
             self.type1 = self.api_info["types"][0]["type"]["name"]
         else:
             self.type1 = self.api_info["types"][0]["type"]["name"]
             self.type2 = self.api_info["types"][1]["type"]["name"]
 
-        self.get_moves()
+        self.get_moves()  # retrieves current valid moves based on level
         self.moveset = {}
+        # chooses four most recently-learned moves by level, or less if less moves are valid
         total_moves = 4 if len(self.damaging_moves) >= 4 else len(self.damaging_moves)
         for move_number in range(total_moves):
             self.moveset[move_number + 1] = self.damaging_moves[-move_number]
 
-        #randomizes IVs
+        # randomizes IVs
         self.iv_spread = [random.choice(range(0, 32)) for _ in range(6)]
 
-        #sets base stats and current stats
+        #sets base stats
         self.base_hp = self.api_info["stats"][5]["base_stat"]
         self.base_atk = self.api_info["stats"][4]["base_stat"]
         self.base_df = self.api_info["stats"][3]["base_stat"]
@@ -337,9 +348,10 @@ class Pokemon():
         self.base_sdf = self.api_info["stats"][1]["base_stat"]
         self.base_spd = self.api_info["stats"][0]["base_stat"]
 
-        self.calculate_stats()
+        self.calculate_stats()  # calculates current stats based on base stats
 
     def calculate_stats(self):
+        # stats calculated using main game formulas with level, IVs, and base stats (no EVs or nature yet)
         self.hp = math.floor((2 * self.base_hp + self.iv_spread[5]) * self.level / 100 + self.level + 10)
         self.atk = math.floor(math.floor((2 * self.base_atk + self.iv_spread[4]) * self.level / 100 + 5) * 1)
         self.df = math.floor(math.floor((2 * self.base_df + self.iv_spread[3]) * self.level / 100 + 5) * 1)
@@ -352,12 +364,15 @@ class Pokemon():
         valid_moves = []
         damaging_moves = []
 
+        # gets all moves learned by level up which within Pokemon's level
         for move in self.api_info["moves"]:
             learn_details = move["version_group_details"][-1]
             if learn_details["level_learned_at"] <= self.level and learn_details["move_learn_method"][
                 "name"] == "level-up":
                 valid_moves += [move]
         self.valid_moves = valid_moves
+
+        # gets all level up moves which do damage
         for move in valid_moves:
             move_name = move["move"]["name"]
             move_data = move_cache[move_name]
@@ -376,10 +391,12 @@ async def pokemon_inventory(ctx):
     assert os.path.exists(user_path) and os.path.exists(inventory_path), await ctx.send(
         'Your inventory is empty! Get more Pokeballs with !draw_balls')
 
+    #loads inventory
     dbfile = open(inventory_path, 'rb')
     dict = pickle.load(dbfile)
     dbfile.close()
 
+    #displays inventory
     str1 = 'You have a total of: ' + str(dict['pokeball']) + ' Pokeballs, ' + str(dict['greatball']) + ' Greatballs, ' \
            + str(dict['ultraball']) + ' Ultraballs, and ' + str(dict['masterball']) + ' Masterballs.'
     str2 = 'The last time you drew for pokeballs was: ' + dict['last_draw']
@@ -397,13 +414,14 @@ async def pokemon_list(ctx):
 
     embed = discord.Embed(title="Your Pokemon:", color=0x00ff00)
 
-    for name in range(1, 101):
-        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(name)
-        if os.path.exists(pokemon_path):
+    for name in range(1, 101):  # checks all numbers from 1 - 100
+        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(name)  # gets Pokemon based off number
+        if os.path.exists(pokemon_path):  # only proceeds if Pokemon exists
+            # gets Pokemon from file
             dbfile = open(pokemon_path, 'rb')
             pokemon = pickle.load(dbfile)
             dbfile.close()
-
+            # adds Pokemon info to embed
             species, level, id = pokemon.species, pokemon.level, pokemon.id
             string = species[0].upper() + species[1:] + ', level ' + str(level) + ' [ID: ' + str(id) + ']'
             embed.add_field(name = string, value='\u200b', inline=False)
@@ -422,18 +440,22 @@ async def pokemon_inspect(ctx, poke_number: int):
     assert os.path.exists(pokemon_path), await ctx.send(
         'Pokemon not found')
 
+    # opens Pokemon file
     dbfile = open(pokemon_path, 'rb')
     pokemon = pickle.load(dbfile)
     dbfile.close()
 
+    # gets species, level, type
     species_level = pokemon.species.capitalize() + ' [Lv. ' + str(pokemon.level) + ']'
     type = pokemon.type1.capitalize() if not pokemon.type2 else pokemon.type1.capitalize() + ', ' + pokemon.type2.capitalize()
 
+    # gets moves
     move_list_str = ''
     for move_number in range(len(pokemon.moveset.keys())):
         move_list_str += pokemon.moveset[move_number + 1].capitalize() + '\n'
     move_list_str += '\u200b'
 
+    # gets stats
     hp = 'HP: ' + str(pokemon.hp)
     atk = 'Attack: ' + str(pokemon.atk)
     df = 'Defense: ' + str(pokemon.df)
@@ -462,6 +484,7 @@ async def pokemon_release(ctx, poke_number: int):
     assert os.path.exists(pokemon_path), await ctx.send(
         'Pokemon not found')
 
+    # makes sure Pokemon isn't in team
     team_path = 'users/' + str(ctx.message.author.id) + '/team'
     if os.path.exists(team_path):
         dbfile = open(team_path, 'rb')
@@ -469,8 +492,28 @@ async def pokemon_release(ctx, poke_number: int):
         dbfile.close()
         assert poke_number not in team.values(), await ctx.send('Cannot release a Pokemon in your team!')
 
+    # deletes Pokemon file
     os.remove(pokemon_path)
     await ctx.send('Pokemon released')
+
+async def team_lister(ctx, team):
+    embed = discord.Embed(title="Your Team:", color=0x00ff00)
+    # gets every Pokemon in team
+    for number in range(len(team.keys())):
+        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(team[number + 1])
+
+        # opens Pokemon file
+        dbfile = open(pokemon_path, 'rb')
+        pokemon = pickle.load(dbfile)
+        dbfile.close()
+
+        # displays Pokemon info
+        species, level, id = pokemon.species, pokemon.level, pokemon.id
+        string = 'Slot ' + str(number + 1) + ': ' + species[0].upper() + species[1:] + ', level ' + str(
+            level) + ' [ID: ' + str(id) + ']'
+        embed.add_field(name=string, value='\u200b', inline=False)
+
+    await ctx.send(embed=embed)
 
 @bot.command(name = 'team_list', help = 'lists out your Pokemon battling team')
 async def team_list(ctx):
@@ -482,23 +525,12 @@ async def team_list(ctx):
     assert os.path.exists(team_path), await ctx.send(
         'You have no team! Add Pokemon to your team with !add')
 
+    # opens team file
     dbfile = open(team_path, 'rb')
     team = pickle.load(dbfile)
     dbfile.close()
 
-    embed = discord.Embed(title="Your Team:", color=0x00ff00)
-    for number in range(len(team.keys())):
-        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(team[number + 1])
-
-        dbfile = open(pokemon_path, 'rb')
-        pokemon = pickle.load(dbfile)
-        dbfile.close()
-
-        species, level, id = pokemon.species, pokemon.level, pokemon.id
-        string = 'Slot ' + str(number + 1) + ': ' + species[0].upper() + species[1:] + ', level ' + str(level) + ' [ID: ' + str(id) + ']'
-        embed.add_field(name=string, value='\u200b', inline=False)
-
-    await ctx.send(embed=embed)
+    await team_lister(ctx, team)  # lists team info
 
 def create_team(path):
     dict = {}
@@ -515,8 +547,9 @@ async def team_add(ctx, poke_number: int):
 
     team_path = 'users/' + str(ctx.message.author.id) + '/team'
     if not os.path.exists(team_path):
-        create_team(team_path)
+        create_team(team_path)  # creates team file if none exists
 
+    # open team file
     dbfile = open(team_path, 'rb')
     team = pickle.load(dbfile)
     dbfile.close()
@@ -530,6 +563,7 @@ async def team_add(ctx, poke_number: int):
     assert poke_number not in team.values(), await ctx.send(
         'Pokemon already in party')
 
+    # modifies team file by adding Pokemon to team
     team[len(team.keys()) + 1] = poke_number
     os.remove(team_path)
     dbfile = open(team_path, 'ab')
@@ -537,20 +571,7 @@ async def team_add(ctx, poke_number: int):
     pickle.dump(team, dbfile)
     dbfile.close()
 
-    embed = discord.Embed(title="Your Pokemon:", color=0x00ff00)
-    for number in range(len(team.keys())):
-        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(team[number + 1])
-
-        dbfile = open(pokemon_path, 'rb')
-        pokemon = pickle.load(dbfile)
-        dbfile.close()
-
-        species, level, id = pokemon.species, pokemon.level, pokemon.id
-        string = 'Slot ' + str(number + 1) + ': ' + species[0].upper() + species[1:] + ', level ' + str(
-            level) + ' [ID: ' + str(id) + ']'
-        embed.add_field(name=string, value='\u200b', inline=False)
-
-    await ctx.send('Your team:', embed=embed)
+    await team_lister(ctx, team)  # lists team info
 
 @bot.command(name = 'team_remove', help = 'remove [slot number] Pokemon from your battling team')
 async def team_remove(ctx, team_number: int):
@@ -562,6 +583,7 @@ async def team_remove(ctx, team_number: int):
     assert os.path.exists(team_path), await ctx.send(
         'You have no team! Add Pokemon to your team with !add')
 
+    # open team file
     dbfile = open(team_path, 'rb')
     team = pickle.load(dbfile)
     dbfile.close()
@@ -571,6 +593,7 @@ async def team_remove(ctx, team_number: int):
     assert team_number in team.keys(), await ctx.send(
         'There is no Pokemon in that team slot')
 
+    # modifies team file by removing Pokemon
     for number in range(team_number, len(team.keys())):
         team[number] = team[number + 1]
     del team[len(team.keys())]
@@ -580,20 +603,7 @@ async def team_remove(ctx, team_number: int):
     pickle.dump(team, dbfile)
     dbfile.close()
 
-    embed = discord.Embed(title="Your Pokemon:", color=0x00ff00)
-    for number in range(len(team.keys())):
-        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(team[number + 1])
-
-        dbfile = open(pokemon_path, 'rb')
-        pokemon = pickle.load(dbfile)
-        dbfile.close()
-
-        species, level, id = pokemon.species, pokemon.level, pokemon.id
-        string = 'Slot ' + str(number + 1) + ': ' + species[0].upper() + species[1:] + ', level ' + str(
-            level) + ' [ID: ' + str(id) + ']'
-        embed.add_field(name=string, value='\u200b', inline=False)
-
-    await ctx.send('Your team:', embed=embed)
+    await team_lister(ctx, team)  # lists team info
 
 @bot.command(name = 'team_replace',
              help = 'replace [slot number] Pokemon in your battling team with [ID] pokemon')
@@ -606,6 +616,7 @@ async def team_replace(ctx, team_number: int, poke_number:int):
     assert os.path.exists(team_path), await ctx.send(
         'You have no team! Add Pokemon to your team with !add')
 
+    # opens team file
     dbfile = open(team_path, 'rb')
     team = pickle.load(dbfile)
     dbfile.close()
@@ -617,33 +628,22 @@ async def team_replace(ctx, team_number: int, poke_number:int):
     assert team_number in team.keys(), await ctx.send(
         'There is no Pokemon in that team slot')
 
+    # finds associated Pokemon ID and does replacement
     if poke_number in team.values():
-        for key, id in team.items():  # for name, age in dictionary.iteritems():  (for Python 2.x)
+        for key, id in team.items():
             if id == poke_number:
                 poke_key = key
                 break
         team[poke_key] = team[team_number]
     team[team_number] = poke_number
+    # modifies team file
     os.remove(team_path)
     dbfile = open(team_path, 'ab')
     # source, destination
     pickle.dump(team, dbfile)
     dbfile.close()
 
-    embed = discord.Embed(title="Your Pokemon:", color=0x00ff00)
-    for number in range(len(team.keys())):
-        pokemon_path = 'users/' + str(ctx.message.author.id) + '/pokemon/' + str(team[number + 1])
-
-        dbfile = open(pokemon_path, 'rb')
-        pokemon = pickle.load(dbfile)
-        dbfile.close()
-
-        species, level, id = pokemon.species, pokemon.level, pokemon.id
-        string = 'Slot ' + str(number + 1) + ': ' + species[0].upper() + species[1:] + ', level ' + str(
-            level) + ' [ID: ' + str(id) + ']'
-        embed.add_field(name=string, value='\u200b', inline=False)
-
-    await ctx.send('Your team:', embed=embed)
+    await team_lister(ctx, team)  # lists team info
 
 
 @bot.command(name = 'pokemon_drawballs', aliases = ('draw', 'drawballs', 'draw_balls', 'pokemon_draw'),
@@ -652,6 +652,7 @@ async def draw_balls(ctx):
     user_path = 'users/' + str(ctx.message.author.id)
     inventory_path = user_path + '/inventory'
 
+    # makes inventory if inventory doesn't exist
     if not os.path.exists(user_path):
         os.makedirs(user_path)
 
@@ -662,6 +663,7 @@ async def draw_balls(ctx):
         pickle.dump(dict, dbfile)
         dbfile.close()
 
+    # loads inventory file
     dbfile = open(inventory_path, 'rb')
     dict = pickle.load(dbfile)
     dbfile.close()
@@ -670,7 +672,9 @@ async def draw_balls(ctx):
     # dd/mm/YY
     today_date = str(today.strftime("%d/%m/%Y"))
     #assert dict['last_draw'] != today_date, await ctx.send('Already drew today, wait for tomorrow')
+    # above line implemets the daily draw limit. Currently disabled for testing.
 
+    # randomly draws 10 balls
     pokeballs, greatballs, ultraballs, masterballs = 0,0,0,0
     for _ in range(0, 10):
         rarity_roll = random.choice(range(1, 101))
@@ -687,14 +691,16 @@ async def draw_balls(ctx):
             dict['masterball'] += 1
             masterballs += 1
 
-    dict['last_draw'] = today_date
+    dict['last_draw'] = today_date  # logs last draw date for daily draw limit
 
+    # modifies inventory file
     os.remove(inventory_path)
     dbfile = open(inventory_path, 'ab')
     # source, destination
     pickle.dump(dict, dbfile)
     dbfile.close()
 
+    # lists balls recieved and total inventory
     str1 = 'You recieved: ' + str(pokeballs) + ' Pokeballs, ' + str(greatballs) + ' Greatballs, ' + str(ultraballs) \
            + ' Ultraballs, and ' + str(masterballs) + ' Masterballs.'
     str2 = 'You have a total of: ' + str(dict['pokeball']) + ' Pokeballs, ' + str(dict['greatball']) + ' Greatballs, ' \
@@ -708,7 +714,7 @@ async def draw_balls(ctx):
              help = 'throw a [pokeball] to catch a Pokemon')
 async def pokeball(ctx, ball):
     #finds possible pokeballs
-    balls = {'pokeball': poke, 'greatball': great, 'ultraball': ultra, 'masterball': master}
+    balls = {'pokeball': poke, 'greatball': great, 'ultraball': ultra, 'masterball': master}  # gets pokeball functions
     ball = ball.lower()
     assert ball in balls.keys(), await ctx.send('Choose a ball from:')
 
@@ -716,6 +722,7 @@ async def pokeball(ctx, ball):
     inventory_path = user_path + '/inventory'
     assert os.path.exists(user_path) and os.path.exists(inventory_path), await ctx.send('You must first draw using !draw_balls')
 
+    # loads inventory file
     dbfile = open(inventory_path, 'rb')
     dict = pickle.load(dbfile)
     dbfile.close()
@@ -730,6 +737,7 @@ async def pokeball(ctx, ball):
     assert number_files < 100, await ctx.send(
         'You cannot have over 100 Pokemon. Release some with !release')
 
+    # modifies inventory file by removing respective Pokeball
     dict[ball] -= 1
     os.remove(inventory_path)
     dbfile = open(inventory_path, 'ab')
@@ -737,7 +745,7 @@ async def pokeball(ctx, ball):
     pickle.dump(dict, dbfile)
     dbfile.close()
 
-    #rolls for a pokemon
+    # rolls for a pokemon
     pokemon_roll, rarity_name = balls[ball]()
 
     api_url = 'https://pokeapi.co/api/v2/pokemon/' + pokemon_roll
@@ -753,7 +761,7 @@ async def pokeball(ctx, ball):
         if not os.path.exists(pokemon_path):
             break
         number += 1
-    pokemon_creator = Pokemon(response, pokemon_roll, number)
+    pokemon_creator = Pokemon(response, pokemon_roll, number)  # creates new instance for Pokemon
     dbfile = open(pokemon_path, 'ab')
 
     # source, destination
@@ -765,6 +773,7 @@ async def pokeball(ctx, ball):
     pic_url = db.sprite
     dbfile.close()
 
+    # sends picture and Pokemon
     await ctx.send(pic_url)
     await ctx.send('You got ' + rarity_name + ' Pokemon: ' + pokemon_roll)
 
@@ -773,7 +782,7 @@ async def pokeball(ctx, ball):
     await ctx.send(string)
 
 
-#BATTLING#
+### BATTLING ###
 
 class Battle(commands.Cog):
     guild_dict = {}
@@ -793,7 +802,7 @@ class Battle(commands.Cog):
     @commands.command(name='challenge', aliases=['Challenge'], help = 'initialize a battle challenge')
     async def challenge(self, ctx):
         if ctx.guild.id not in self.guild_dict.keys():
-            self.add_guild(ctx.guild.id)
+            self.add_guild(ctx.guild.id)  # creates new instance if guild instance isn't already created
         await self.guild_dict[ctx.guild.id].guild_challenge(ctx)
 
     @commands.command(name='accept', aliases=['Accept'], help = 'accept a battle challenge')
