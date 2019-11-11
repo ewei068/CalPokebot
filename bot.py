@@ -791,13 +791,13 @@ class Battle(commands.Cog):
         self.bot = bot
 
     def add_guild(self, id):
-        self.guild_dict[id] = GuildBattle(self.bot)
+        self.guild_dict[id] = GuildBattle(self.bot)  # adds guild instance to dictionary of battle instances
 
     def create(self):
-        self.check = True
+        self.check = True  # checks if battle is going on in guild
 
     def remove(self, ctx):
-        self.add_guild(ctx.guild.id)
+        self.add_guild(ctx.guild.id)  # resets guild instance
 
     @commands.command(name='challenge', aliases=['Challenge'], help = 'initialize a battle challenge')
     async def challenge(self, ctx):
@@ -831,48 +831,58 @@ class GuildBattle(Battle):
 
 
     def create_players(self):
-        self.player_instance_1 = Player(self.player1)
+        self.player_instance_1 = Player(self.player1)  # creates player instances
         self.player_instance_2 = Player(self.player2)
 
     async def start_game(self, ctx):
         self.create_players()
+
+        # sends out first Pokemon of each player's team
         self.p1_poke = self.player_instance_1.team[0]
         self.p2_poke = self.player_instance_2.team[0]
+
+        # decides who goes first based on speed
         self.attacker = self.p1_poke if self.p1_poke.pokemon.spd > self.p2_poke.pokemon.spd else self.p2_poke
         self.defender = self.p2_poke if self.p1_poke.pokemon.spd > self.p2_poke.pokemon.spd else self.p1_poke
         self.turn_phase = 1
-        self.active_player = self.attacker.owner
-        await self.game_state(ctx)
+        self.active_player = self.attacker.owner  # sets active player to the owner of attacking Pokemon
+        await self.game_state(ctx)  # displays state of battle
 
     async def next_turn(self, ctx):
-        if self.defender.fainted:
+        if self.defender.fainted:  # checks if the defending Pokemon has fainted
+            # ends game if defender has no pokemon left
             if len(self.defender.owner.team) == 0:
                 await self.finish(ctx, self.attacker.owner.player)
                 return
+            # prompts defender to choose new Pokemon
             else:
                 self.choosing = self.defender.owner
-                await self.show_team(ctx)
+                await self.show_team(ctx)  # shows defender's team
                 return
+        # determines attacker by speed if new turn has started
         elif not self.turn_phase:
             if self.defender.pokemon.spd > self.attacker.pokemon.spd:
                 self.attacker, self.defender = self.defender, self.attacker
             self.turn_phase = 1
+        # switches attacker and defender if in the middle of a turn
         else:
             self.attacker, self.defender = self.defender, self.attacker
             self.turn_phase = 0
         self.active_player = self.attacker.owner
-        await self.game_state(ctx)
+        await self.game_state(ctx)  # displays state of battle
 
     async def game_state(self, ctx):
         attacker_pokemon = self.attacker.pokemon
         defender_pokemon = self.defender.pokemon
 
+        # displays attacker and defender HP, species, and level
         d_species_level = defender_pokemon.species.capitalize() + ' [Lv. ' + str(defender_pokemon.level) + ']'
         d_hp = 'HP: ' + str(defender_pokemon.hp)
 
         a_species_level = attacker_pokemon.species.capitalize() + ' [Lv. ' + str(attacker_pokemon.level) + ']'
         a_hp = 'HP: ' + str(attacker_pokemon.hp)
 
+        # displays moves that the attacker can use
         move_list_str = ''
         for move_number in range(len(attacker_pokemon.moveset.keys())):
             move_list_str += str(move_number + 1) + '. ' + attacker_pokemon.moveset[move_number + 1].capitalize() + '\n'
@@ -881,6 +891,7 @@ class GuildBattle(Battle):
         str1 = d_species_level + '\n' + d_hp
         str2 = a_species_level + '\n' + a_hp
 
+        # displays battle state via an embed
         embed = discord.Embed(title='Game State:', color=0x00ff00)
         embed.add_field(name='Defender: ' + str(self.defender.owner.player), value=str1, inline=False)
         embed.add_field(name='Attacker: ' + str(self.attacker.owner.player), value=str2, inline=False)
@@ -889,6 +900,7 @@ class GuildBattle(Battle):
         await ctx.send(embed=embed)
 
     async def show_team(self, ctx):
+        # shows team when defender is choosing a new Pokemon
         embed = discord.Embed(title="Choose from:", color=0x00ff00)
         for number in range(len(self.choosing.team)):
             pokemon = self.choosing.team[number]
@@ -901,8 +913,8 @@ class GuildBattle(Battle):
         await ctx.send(embed=embed)
 
     async def finish(self, ctx, winner):
-        await ctx.send('The winner is: ' + str(winner))
-        self.remove(ctx)
+        await ctx.send('The winner is: ' + str(winner))  # displays winner
+        self.remove(ctx)  # ends game
 
 
     async def guild_challenge(self, ctx):
@@ -910,10 +922,10 @@ class GuildBattle(Battle):
         team_path = 'users/' + str(ctx.message.author.id) + '/team'
         assert os.path.exists(team_path), await ctx.send(
             'You have no team! Add Pokemon to your team with !add')
-        self.create()
-        print(self)
+        self.create()  # starts new battle
+        #print(self)
 
-        self.player1 = ctx.message.author
+        self.player1 = ctx.message.author  # sets player 1 as player who initiated challenge
 
         await ctx.send('Battle started, accept ' + str(self.player1) + '\'s challenge with !accept')
 
@@ -926,18 +938,18 @@ class GuildBattle(Battle):
         assert os.path.exists(team_path), await ctx.send(
             'You have no team! Add Pokemon to your team with !add')
 
-        self.player2 = ctx.message.author
+        self.player2 = ctx.message.author  # sets player 2 as player who accepted challenge
 
         await ctx.send('Challenge accepted by ' + str(self.player2))
 
-        await self.start_game(ctx)
+        await self.start_game(ctx)  # starts battle
 
 
     async def guild_end(self, ctx):
         assert self.check and self.player2, await ctx.send('No battle started. Start a battle with !challenge')
         assert ctx.message.author == self.player1 or ctx.message.author == self.player2, await ctx.send('Only battlers can end battles')
 
-        self.remove(ctx)
+        self.remove(ctx)  # ends battle
 
         await ctx.send('Battle ended by ' + str(ctx.message.author))
 
@@ -948,15 +960,18 @@ class GuildBattle(Battle):
         assert ctx.message.author == self.active_player.player, await ctx.send('It\'s not your turn')
         assert self.attacker.check_moves(move_number), await ctx.send('Move number not found in moveset')
 
-        damage, remaining_hp, modifier = self.attacker.attack(self.defender, move_number)
+        damage, remaining_hp, modifier = self.attacker.attack(self.defender, move_number)  # attacks with move and gets result
         str1 = 'Dealt ' + str(damage) + ' damage. '
+
+        # displays super effective or not very effective
         if modifier > 1.2:
             str2 = 'Super effective! '
         elif modifier < 1:
             str2 = 'Not very effective... '
         else:
             str2 = ''
-        str3 = 'Remaining HP: ' + str(remaining_hp)
+
+        str3 = 'Remaining HP: ' + str(remaining_hp)  # displays remaining HP
         await ctx.send(str1 + str2 + str3)
         await self.next_turn(ctx)
 
@@ -966,8 +981,8 @@ class GuildBattle(Battle):
         assert self.choosing and ctx.message.author == self.choosing.player, await ctx.send('You can\'t choose Pokemon yet')
         assert self.choosing.check_slots(slot), await ctx.send('Team slot not found')
 
-        self.choosing.send(slot)
-        self.defender = self.choosing.active_pokemon
+        self.choosing.send(slot)  # sends out chosen Pokemon
+        self.defender = self.choosing.active_pokemon  # sets new Pokemon as defender
         self.turn_phase = 0
         self.choosing = None
         await self.next_turn(ctx)
@@ -979,33 +994,38 @@ class BattlePokemon():
     fainted = False
 
     def __init__(self, owner, pokemon):
-        self.pokemon = copy.copy(pokemon)
-        self.owner = owner
+        self.pokemon = copy.copy(pokemon)  # copies Pokemon instance's stats
+        self.owner = owner  # sets owner
 
     def attack(self, target, move_number):
+        # gets move data
         move = self.pokemon.moveset[move_number]
         move_data = move_cache[move]
         move_type = move_data["type"]["name"]
         power, damage_class = move_data["power"], move_data["damage_class"]["name"]
-        stab = 1.2 if move_type == self.pokemon.type1 or move_type == self.pokemon.type2 else 1
-        modifier = 1 * type_chart[move_type].get(target.pokemon.type1, 1) * type_chart[move_type].get(target.pokemon.type2, 1) * stab
 
+        stab = 1.2 if move_type == self.pokemon.type1 or move_type == self.pokemon.type2 else 1  # checks for STAB bonus
+        modifier = 1 * type_chart[move_type].get(target.pokemon.type1, 1) * type_chart[move_type].get(target.pokemon.type2, 1) * stab  # checks for type weakness or resistance
+
+        # checks for physical or special
         if damage_class == 'physical':
             damage = math.floor(modifier * (((((2 * self.pokemon.level/5 + 2) * self.pokemon.atk * power)/target.pokemon.df)/50)+2))
         else:
             damage = math.floor(modifier * (
                         ((((2 * self.pokemon.level / 5 + 2) * self.pokemon.satk * power) / target.pokemon.sdf) / 50) + 2))
 
-        remaining_hp = target.take_damage(damage)
-        return damage, remaining_hp, modifier
+        remaining_hp = target.take_damage(damage)  # deals damage to defender
+        return damage, remaining_hp, modifier  # returns results
 
     def take_damage(self, damage):
-        self.pokemon.hp -= damage
+        self.pokemon.hp -= damage  # takes damage
+        # checks for faint
         if self.pokemon.hp <= 0:
             self.owner.faint(self)
         return self.pokemon.hp
 
     def check_moves(self, move_number):
+        # makes sure Pokemon knows selected move
         if move_number in self.pokemon.moveset.keys():
             return True
         return False
@@ -1015,25 +1035,28 @@ class Player():
     active_pokemon = None
 
     def __init__(self, player):
-        self.team = self.team[:]
         self.player = player
+
+        # gets team
+        self.team = self.team[:]
         team_path = 'users/' + str(player.id) + '/team'
         dbfile = open(team_path, 'rb')
         self.team_dict = pickle.load(dbfile)
         dbfile.close()
 
+        # loads all Pokemon in team
         for _ in range(len(self.team_dict.keys())):
             pokemon_path = 'users/' + str(player.id) + '/pokemon/' + str(self.team_dict[_ + 1])
             dbfile = open(pokemon_path, 'rb')
             pokemon = pickle.load(dbfile)
             dbfile.close()
-            self.team += [BattlePokemon(self, pokemon)]
+            self.team += [BattlePokemon(self, pokemon)]  # creates new instances for each Pokemon and adds them to team
 
     def send(self, slot):
-        self.active_pokemon = self.team[slot-1]
+        self.active_pokemon = self.team[slot-1]  # sends out chosen Pokemon
 
     def faint(self, pokemon):
-        self.team = [poke for poke in self.team if poke is not pokemon]
+        self.team = [poke for poke in self.team if poke is not pokemon]  # removes fainted Pokemon from team
         pokemon.fainted = True
 
     def check_slots(self, slot):
