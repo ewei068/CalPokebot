@@ -56,6 +56,26 @@ async def nine_nine(ctx):
     response = random.choice(brooklyn_99_quotes)
     await ctx.send(response)
 
+@bot.command(name='combos')
+async def combos(ctx, word: str):
+    assert len(word) < 6, await ctx.send("Choose a word with less than 6 characters")
+    results = await combs(word)
+    if len(word) < 4:
+        for result in results:
+            await ctx.send(result)
+    else:
+        await ctx.send(results)
+
+async def combs(s):
+    results = []
+    if len(s) == 1:
+        return [s]
+    for result in await combs(s[1:]):
+        for place in range(len(result)):
+            results.append(result[:place] + s[0] + result[place:])
+        results.append(result + s[0])
+    return results
+
 @bot.command(name='bitcoin')
 async def bitcoin(ctx):
     url = 'https://api.coindesk.com/v1/bpi/currentprice/BTC.json'
