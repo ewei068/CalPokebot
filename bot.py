@@ -111,6 +111,7 @@ async def deez_nuts(ctx):
 
 @bot.command(pass_context=True)
 async def creeper(ctx):
+    return None
     lyrics = ['Aw', 'man', 'So', 'we', 'back', 'in', 'the', 'mine', 'Got', 'our', 'pickaxe', 'swinging',
               'from', 'side', 'to', 'side', 'Side', 'side', 'to', 'side', 'This', 'task', 'a', 'grueling', 'one',
               'Hope', 'to', 'find', 'some', 'diamonds', 'tonight', 'night', 'night', 'Diamonds', 'tonight', 'Heads',
@@ -616,20 +617,20 @@ async def draw_balls(ctx):
     today = date.today()
     # dd/mm/YY
     today_date = str(today.strftime("%d/%m/%Y"))
-    #assert dict['last_draw'] != today_date, await ctx.send('Already drew today, wait for tomorrow')
+    assert dict['last_draw'] != today_date, await ctx.send('Already drew today, wait for tomorrow')
     # above line implemets the daily draw limit. Currently disabled for testing.
 
     # randomly draws 10 balls
     pokeballs, greatballs, ultraballs, masterballs = 0,0,0,0
     for _ in range(0, 10):
         rarity_roll = random.choice(range(1, 101))
-        if rarity_roll in range(1, 51):
+        if rarity_roll in range(1, 76):
             dict['pokeball'] += 1
             pokeballs += 1
-        elif rarity_roll in range(51, 81):
+        elif rarity_roll in range(76, 91):
             dict['greatball'] += 1
             greatballs += 1
-        elif rarity_roll in range(81, 96):
+        elif rarity_roll in range(91, 98):
             dict['ultraball'] += 1
             ultraballs += 1
         else:

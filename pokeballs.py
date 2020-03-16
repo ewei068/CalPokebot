@@ -9,7 +9,8 @@ common = ['bulbasaur', 'charmander', 'wartortle', 'caterpie', 'metapod', 'weedle
           'kabuto', 'dratini', 'chikorita', 'cyndaquil', 'totodile', 'sentret', 'hoothoot', 'ledyba', 'spinarak',
           'chinchou', 'pichu', 'clefa', 'igglybuff', 'togepi', 'natu', 'mareep', 'hoppip', 'aipom', 'sunkern', 'wooper'
           'pineco', 'snubbull', 'quilfish', 'teddiursa', 'sulgma', 'swinub', 'corsola', 'remoraid', 'houndour',
-          'phanpy', 'tyrouge', 'smoochum', 'elekid', 'magby', 'larvitar']
+          'phanpy', 'tyrouge', 'smoochum', 'elekid', 'magby', 'larvitar', 'treecko', 'torchic', 'mudkip', 'poochyena',
+          'zigzagoon']
 
 rare = ['ivysaur', 'charmeleon', 'wartortle', 'butterfree', 'beedrill', 'pidgeotto', 'raticate', 'fearow', 'arbok',
         'pikachu', 'sandslash', 'nidorina', 'nidorino', 'clefairy', 'vulpix', 'jigglypuff', 'golbat', 'gloom',
@@ -23,7 +24,8 @@ rare = ['ivysaur', 'charmeleon', 'wartortle', 'butterfree', 'beedrill', 'pidgeot
         'lanturn', 'togetic', 'xatu', 'flaaffy', 'marill', 'sudowoodo', 'skiploom', 'sunflora', 'yanma', 'quagsire',
         'murkrow', 'misdreavus', 'wobbuffet', 'girafarig', 'forretress', 'dunsparce', 'gligar', 'granbull', 'shuckle',
         'sneasel', 'ursaring', 'magcargo', 'piloswine', 'octillery', 'delibird', 'mantine', 'houndoom', 'donphan',
-        'porygon2', 'stantler', 'hitmontop', 'miltank', 'pupitar']
+        'porygon2', 'stantler', 'hitmontop', 'miltank', 'pupitar', 'grovyle', 'combusken', 'marshtomp', 'mightyena',
+        'linoone']
 
 epic = ['venusaur', 'charizard', 'blastoise', 'pidgeot', 'raichu', 'nidoqueen', 'nidoking', 'clefable', 'ninetails',
         'wigglytuff', 'vileplume', 'arcanine', 'poliwrath', 'alakazam', 'machamp', 'victreebel', 'golem', 'slowbro'
@@ -31,19 +33,37 @@ epic = ['venusaur', 'charizard', 'blastoise', 'pidgeot', 'raichu', 'nidoqueen', 
         'exeggcutor', 'gyarados', 'lapras', 'vaporeon', 'jolteon', 'flareon', 'aerodactyl',
         'snorlax', 'dragonite', 'meganium', 'typhlosion', 'feraligatr', 'crobat', 'ampharos', 'bellossom', 'azumarill',
         'politoed', 'jumpluff', 'espeon', 'umbreon', 'slowking', 'steelix', 'scizor', 'heracross', 'skarmory', 'kingdra',
-        'blissey', 'tyranitar']
+        'blissey', 'tyranitar', 'sceptile', 'blaziken', 'swampert']
 
 legendary = ['articuno', 'zapdos', 'moltres', 'mewtwo', 'raikou', 'entei', 'suicune', 'ho-oh', 'lugia']
 
-mythical = ['mew', 'celebi']
+mythical = ['mew', 'celebi', 'jirachi', 'deoxys-normal']
 
 
 def poke():
     rarity_roll = random.choice(range(1, 101))
-    if rarity_roll in range(1, 61):
+    if rarity_roll in range(1, 76):
         rarity = common
         rarity_name = 'common'
-    elif rarity_roll in range(61, 86):
+    elif rarity_roll in range(76, 96):
+        rarity = rare
+        rarity_name = 'rare'
+    elif rarity_roll in range(96, 99):
+        rarity = epic
+        rarity_name = 'epic'
+    elif rarity_roll in range(99, 101):
+        rarity = legendary
+        rarity_name = 'legendary'
+
+    pokemon_roll = random.choice(rarity)
+    return pokemon_roll, rarity_name
+
+def great():
+    rarity_roll = random.choice(range(1, 101))
+    if rarity_roll in range(1, 51):
+        rarity = common
+        rarity_name = 'common'
+    elif rarity_roll in range(51, 86):
         rarity = rare
         rarity_name = 'rare'
     elif rarity_roll in range(86, 96):
@@ -59,12 +79,12 @@ def poke():
     pokemon_roll = random.choice(rarity)
     return pokemon_roll, rarity_name
 
-def great():
+def ultra():
     rarity_roll = random.choice(range(1, 101))
-    if rarity_roll in range(1, 61):
+    if rarity_roll in range(1, 51):
         rarity = rare
         rarity_name = 'rare'
-    elif rarity_roll in range(61, 91):
+    elif rarity_roll in range(51, 91):
         rarity = epic
         rarity_name = 'epic'
     elif rarity_roll in range(91, 99):
@@ -77,24 +97,12 @@ def great():
     pokemon_roll = random.choice(rarity)
     return pokemon_roll, rarity_name
 
-def ultra():
-    rarity_roll = random.choice(range(1, 101))
-    if rarity_roll in range(1, 61):
-        rarity = epic
-        rarity_name = 'epic'
-    elif rarity_roll in range(61, 96):
-        rarity = legendary
-        rarity_name = 'legendary'
-    else:
-        rarity = mythical
-        rarity_name = 'mythical'
-
-    pokemon_roll = random.choice(rarity)
-    return pokemon_roll, rarity_name
-
 def master():
     rarity_roll = random.choice(range(1, 101))
-    if rarity_roll in range(1, 91):
+    if rarity_roll in range(1, 51):
+        rarity = epic
+        rarity_name = 'epic'
+    elif rarity_roll in range(51, 96):
         rarity = legendary
         rarity_name = 'legendary'
     else:
