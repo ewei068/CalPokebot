@@ -3,6 +3,7 @@ This is my first personal project so I'm just trying to learn what to do and how
 
 This Discord bot is a multipurpose bot that also allows users to catch and battle Pokemon.<br>
 LINK TO ADD TO DISCORD: https://discordapp.com/api/oauth2/authorize?client_id=640100001829224449&permissions=8&scope=bot
+(currently, the bot is not up 24/7 because people aren't really using it but feel free to add it anyways)
 
 ***Commands***
 
